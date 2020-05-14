@@ -5,6 +5,8 @@ from aws_cdk import (
     aws_logs as logs,
     aws_iam as iam,
     aws_apigateway as apigw,
+    aws_s3 as s3,
+    aws_s3_deployment as s3deploy,
 )
 
 
@@ -88,7 +90,7 @@ class AwsUrlShortenerStack(core.Stack):
         # API Gateway endpoint to serve Shorten/Unshorten APIs
         url_rest_api = apigw.RestApi(
             self,
-            "URL_Shortener_API",
+            "url_shortener_API",
         )
 
         # Shorten API using POST and Lambda proxy
@@ -115,4 +117,24 @@ class AwsUrlShortenerStack(core.Stack):
                 proxy=True,
                 allow_test_invoke=False,
             ),
+        )
+
+        # Add logic to replace exising API GW endpoint in the HTML file with the new one
+
+        # S3 bucket to host the URL Shortener Static Website
+        s3_web_hosting = s3.Bucket(
+            self,
+            "url_shortener_web_hosting_bucket",
+            website_index_document="index.html", 
+        )
+
+        # Uploading HTML and ICO files from local directory to S3 Static Website bucket
+        s3deploy.BucketDeployment(
+            self,
+            "website_source_files",
+            sources=[s3deploy.Source.asset(
+                path="website",
+                readers=[iam.AnyPrincipal()],
+            )],
+            destination_bucket=s3_web_hosting,
         )

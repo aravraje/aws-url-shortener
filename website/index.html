@@ -1,0 +1,92 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>URL shortener</title>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.0.3/css/bootstrap.min.css">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.4/jquery.min.js"></script>
+    <script type="text/javascript">
+    $(document).ready(function() {
+        // used only to allow local serving of files
+        $.ajaxSetup({
+            beforeSend: function(xhr) {
+                if (xhr.overrideMimeType) {
+                    xhr.overrideMimeType("application/json");	
+                }
+            }
+        });
+
+        $('#url_input').focus();    // set initial focus
+
+        $('form#submit').submit(function(event) {
+            $('#url_input_submit').prop('disabled', true);
+
+            // process the form
+            $.ajax({
+                type        : 'POST',
+                url         : 'https://fq7h9gue79.execute-api.us-east-1.amazonaws.com/test/shorten',
+                data        : JSON.stringify({ 'url_long' : $('#url_input').val(), 'cdn_prefix': window.location.hostname }),
+                contentType : 'application/json; charset=utf-8',
+                dataType    : 'json',
+                encode      : true
+            })
+            .done(function(data,textStatus, jqXHR) {
+                $('#url_input_submit').prop('disabled', false);
+                if (data.error) {
+                    $('#url-group').addClass('has-error'); // add the error class to show red input
+                    $('#url-error').show().text(data.error); // add the actual error message under our input
+                } else {
+                    $('form#submit').hide();        // hide initial submit form
+                    $('form#result').show();        // and show the one used to display the results
+                    $('#url_long').text(data.url_long);
+                    $('#url_short').val(data.url_short).focus().select();
+                }
+            })
+            .fail(function(_, _, errorThrown) {
+                $('#url_input_submit').prop('disabled', false);
+                $('#url-group').addClass('has-error'); // add the error class to show red input
+                $('#url-error').show().text("Server error: "+errorThrown); // add the actual error message under our input
+            });
+
+            // stop the form from submitting the normal way and refreshing the page
+            event.preventDefault();
+        });
+    
+        $('form#result').submit(function(event) {
+            location.reload();
+        });
+    });
+    </script>
+    <style>
+    .centered {
+      position: fixed;
+      top: 30%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+    }
+    </style>
+</head>
+<body>
+<div class="col-sm-8 centered" align="center">
+    <h1>URL Shortener</h1>
+    <br/>
+    <form id="submit">
+        <div id="url-group" class="form-group">
+            <input type="url" required class="form-control" name="url" placeholder="Paste the long URL here" id="url_input">
+            <div class="help-block" style="display: none" id="url-error"></div>
+        </div>
+        <button type="submit" class="btn btn-primary btn-lg" id="url_input_submit">Shorten</button>
+
+    </form>
+    <form id="result" style="display: none">
+        <div class="alert alert-success">Successfully shortened: <br/><span id="url_long"></span></div>
+        <div class="form-group">
+            <label for="name">You can now copy/paste the short URL</label>
+            <input type="text" class="form-control" name="url" readonly="readonly" id="url_short">
+        </div><button type="submit" class="btn btn-primary btn-lg" id="page_reload">Start Over</button><div>
+        </div>
+    </form>
+</div>
+</body>
+</html>
