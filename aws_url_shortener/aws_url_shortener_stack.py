@@ -4,6 +4,7 @@ from aws_cdk import (
     aws_lambda as _lambda,
     aws_logs as logs,
     aws_iam as iam,
+    aws_apigateway as apigw,
 )
 
 
@@ -83,3 +84,35 @@ class AwsUrlShortenerStack(core.Stack):
 
         # Attaching DDB Policy statement with the Lambda IAM Role
         url_lambda.add_to_role_policy(ddb_policy_statement)
+
+        # API Gateway endpoint to serve Shorten/Unshorten APIs
+        url_rest_api = apigw.RestApi(
+            self,
+            "URL_Shortener_API",
+        )
+
+        # Shorten API using POST and Lambda proxy
+        url_rest_api.root.add_resource(
+            path_part="shorten"
+        ).add_method(
+            http_method="POST",
+            integration=apigw.LambdaIntegration(
+                handler=url_lambda,
+                proxy=True,
+                allow_test_invoke=False,
+            ),
+        )
+
+        # Unshorten API using GET and Lambda proxy
+        url_rest_api.root.add_resource(
+            path_part="unshorten"
+        ).add_resource(
+            path_part="{shorturl}"
+        ).add_method(
+            http_method="GET",
+            integration=apigw.LambdaIntegration(
+                handler=url_lambda,
+                proxy=True,
+                allow_test_invoke=False,
+            ),
+        )
