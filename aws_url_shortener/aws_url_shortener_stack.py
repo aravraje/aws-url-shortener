@@ -8,7 +8,7 @@ from aws_cdk import (
     aws_s3 as s3,
     aws_s3_deployment as s3deploy,
 )
-
+from bs4 import BeautifulSoup
 
 class AwsUrlShortenerStack(core.Stack):
 
@@ -119,7 +119,16 @@ class AwsUrlShortenerStack(core.Stack):
             ),
         )
 
-        # Add logic to replace exising API GW endpoint in the HTML file with the new one
+        # Integrating the APIGW Shorten endpoint into the HTML file
+        with open("website/index.html") as inf:
+            content = inf.read()
+            soup = BeautifulSoup(content, "html.parser")
+
+        post_url = soup.find("div", id="post_url")
+        post_url.string = url_rest_api.url + "shorten"
+
+        with open("website/index.html", "w") as outf:
+            outf.write(str(soup))
 
         # S3 bucket to host the URL Shortener Static Website
         s3_web_hosting = s3.Bucket(
