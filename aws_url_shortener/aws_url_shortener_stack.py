@@ -7,6 +7,7 @@ from aws_cdk import (
     aws_apigateway as apigw,
     aws_s3 as s3,
     aws_s3_deployment as s3deploy,
+    aws_cloudfront as cf,
 )
 from bs4 import BeautifulSoup
 
@@ -91,6 +92,7 @@ class AwsUrlShortenerStack(core.Stack):
         url_rest_api = apigw.RestApi(
             self,
             "url_shortener_API",
+            cloud_watch_role=False,
         )
 
         # Shorten API using POST and Lambda proxy
@@ -146,4 +148,55 @@ class AwsUrlShortenerStack(core.Stack):
                 readers=[iam.AnyPrincipal()],
             )],
             destination_bucket=s3_web_hosting,
+        )
+
+        # CloudFront Distribution with S3 and APIGateway origins
+        url_cf_distribution = cf.CloudFrontWebDistribution(
+            self,
+            "url_shortener_distribution",
+            origin_configs=[
+                cf.SourceConfiguration(
+                    s3_origin_source=cf.S3OriginConfig(
+                        s3_bucket_source=s3_web_hosting,
+                    ),
+                    behaviors=[
+                        cf.Behavior(
+                            allowed_methods=cf.CloudFrontAllowedMethods.GET_HEAD_OPTIONS,
+                            cached_methods=cf.CloudFrontAllowedCachedMethods.GET_HEAD,
+                            compress=False,
+                            is_default_behavior=False,
+                            path_pattern="/",
+                        ),
+                        cf.Behavior(
+                            allowed_methods=cf.CloudFrontAllowedMethods.GET_HEAD_OPTIONS,
+                            cached_methods=cf.CloudFrontAllowedCachedMethods.GET_HEAD,
+                            compress=False,
+                            is_default_behavior=False,
+                            path_pattern="/favicon.ico",
+                        ),
+                    ]
+                ),
+                cf.SourceConfiguration(
+                    custom_origin_source=cf.CustomOriginConfig(
+                        domain_name=url_rest_api.url.lstrip("https://").split("/")[0],
+                    ),
+                    origin_path="/" + url_rest_api.deployment_stage.stage_name + "/unshorten",
+                    behaviors=[
+                        cf.Behavior(
+                            allowed_methods=cf.CloudFrontAllowedMethods.GET_HEAD_OPTIONS,
+                            cached_methods=cf.CloudFrontAllowedCachedMethods.GET_HEAD,
+                            compress=False,
+                            is_default_behavior=True,
+                        )
+                    ]
+                )
+            ],
+            price_class=cf.PriceClass.PRICE_CLASS_100,
+        )
+
+        # Adding the CloudFront Distribution endpoint to CFN Output
+        core.CfnOutput(
+            self,
+            "URLShortenerWebsite",
+            value=url_cf_distribution.domain_name,
         )
