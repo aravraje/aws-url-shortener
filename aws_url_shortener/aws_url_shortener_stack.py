@@ -26,6 +26,7 @@ class AwsUrlShortenerStack(core.Stack):
             ),
             read_capacity=10,
             write_capacity=10,
+            removal_policy=core.RemovalPolicy.DESTROY,
         )
 
         # AutoScaling of RCUs with a Target Utilization of 70%
@@ -48,6 +49,7 @@ class AwsUrlShortenerStack(core.Stack):
             ),
             read_capacity=10,
             write_capacity=10,
+            removal_policy=core.RemovalPolicy.DESTROY,
         )
 
         # AutoScaling of RCUs with a Target Utilization of 70%
@@ -121,22 +123,11 @@ class AwsUrlShortenerStack(core.Stack):
             ),
         )
 
-        # Integrating the APIGW Shorten endpoint into the HTML file
-        with open("website/index.html") as inf:
-            content = inf.read()
-            soup = BeautifulSoup(content, "html.parser")
-
-        post_url = soup.find("div", id="post_url")
-        post_url.string = url_rest_api.url + "shorten"
-
-        with open("website/index.html", "w") as outf:
-            outf.write(str(soup))
-
         # S3 bucket to host the URL Shortener Static Website
         s3_web_hosting = s3.Bucket(
             self,
             "url_shortener_web_hosting_bucket",
-            website_index_document="index.html", 
+            website_index_document="index.html",
         )
 
         # Uploading HTML and ICO files from local directory to S3 Static Website bucket
@@ -145,7 +136,6 @@ class AwsUrlShortenerStack(core.Stack):
             "website_source_files",
             sources=[s3deploy.Source.asset(
                 path="website",
-                readers=[iam.AnyPrincipal()],
             )],
             destination_bucket=s3_web_hosting,
         )
@@ -156,21 +146,16 @@ class AwsUrlShortenerStack(core.Stack):
             "url_shortener_distribution",
             origin_configs=[
                 cf.SourceConfiguration(
-                    s3_origin_source=cf.S3OriginConfig(
-                        s3_bucket_source=s3_web_hosting,
+                    custom_origin_source=cf.CustomOriginConfig(
+                        domain_name=s3_web_hosting.bucket_website_domain_name,
+                        origin_protocol_policy=cf.OriginProtocolPolicy.HTTP_ONLY,
                     ),
                     behaviors=[
                         cf.Behavior(
-                            allowed_methods=cf.CloudFrontAllowedMethods.GET_HEAD_OPTIONS,
-                            cached_methods=cf.CloudFrontAllowedCachedMethods.GET_HEAD,
-                            compress=False,
                             is_default_behavior=False,
                             path_pattern="/",
                         ),
                         cf.Behavior(
-                            allowed_methods=cf.CloudFrontAllowedMethods.GET_HEAD_OPTIONS,
-                            cached_methods=cf.CloudFrontAllowedCachedMethods.GET_HEAD,
-                            compress=False,
                             is_default_behavior=False,
                             path_pattern="/favicon.ico",
                         ),
@@ -183,15 +168,13 @@ class AwsUrlShortenerStack(core.Stack):
                     origin_path="/" + url_rest_api.deployment_stage.stage_name + "/unshorten",
                     behaviors=[
                         cf.Behavior(
-                            allowed_methods=cf.CloudFrontAllowedMethods.GET_HEAD_OPTIONS,
-                            cached_methods=cf.CloudFrontAllowedCachedMethods.GET_HEAD,
-                            compress=False,
                             is_default_behavior=True,
                         )
                     ]
                 )
             ],
-            price_class=cf.PriceClass.PRICE_CLASS_100,
+            price_class=cf.PriceClass.PRICE_CLASS_ALL,
+            default_root_object="",
         )
 
         # Adding the CloudFront Distribution endpoint to CFN Output

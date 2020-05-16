@@ -1,6 +1,7 @@
 .env
 *.egg-info
-cdk.out
 __pycache__
 .vscode
+.DS_Store
+cdk.out
 cdk.context.json
