@@ -66,7 +66,7 @@ class AwsUrlShortenerStack(core.Stack):
         url_lambda = _lambda.Function(
             self,
             "url_shortener_lambda",
-            code=_lambda.Code.asset("lambda"),
+            code=_lambda.Code.asset("lambda_proxy"),
             handler="lambda_function.lambda_handler",
             runtime=_lambda.Runtime.PYTHON_3_8,
             timeout=core.Duration.seconds(10),
@@ -131,7 +131,7 @@ class AwsUrlShortenerStack(core.Stack):
         )
 
         # Uploading HTML and ICO files from local directory to S3 Static Website bucket
-        s3deploy.BucketDeployment(
+        s3_deploy = s3deploy.BucketDeployment(
             self,
             "website_source_files",
             sources=[s3deploy.Source.asset(
@@ -139,6 +139,41 @@ class AwsUrlShortenerStack(core.Stack):
             )],
             destination_bucket=s3_web_hosting,
         )
+
+        # Lambda function to integrate the API GW Shorten endpoint with the HTML file stored in S3
+        cr_provider = _lambda.Function(
+            self,
+            "cr_provider",
+            code=_lambda.Code.asset("custom_resource"),
+            handler="lambda_function.lambda_handler",
+            runtime=_lambda.Runtime.PYTHON_3_8,
+            timeout=core.Duration.minutes(1),
+        )
+
+        # A Custom IAM Policy statement to grant S3 access to the Lambda function
+        lambda_cr_statement = iam.PolicyStatement(
+            actions=["s3:List*", "s3:Get*", "s3:Put*"],
+            effect=iam.Effect.ALLOW,
+            resources=[s3_web_hosting.bucket_arn, s3_web_hosting.bucket_arn + "/*"]
+        )
+
+        cr_provider.add_to_role_policy(lambda_cr_statement)
+
+        # CFN Custom Resource backed by Lambda
+        lambda_cr = core.CustomResource(
+            self,
+            "lambda_cr",
+            service_token=cr_provider.function_arn,
+            properties={
+                "S3_BUCKET": s3_web_hosting.bucket_name,
+                "S3_KEY": "index.html",
+                "POST_URL": url_rest_api.url + "shorten",
+            },
+            removal_policy=core.RemovalPolicy.DESTROY,
+        )
+
+        # Adding dependency so that Custom Resource creation happens after files are uploaded to S3
+        lambda_cr.node.add_dependency(s3_deploy)
 
         # CloudFront Distribution with S3 and APIGateway origins
         url_cf_distribution = cf.CloudFrontWebDistribution(
