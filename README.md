@@ -16,7 +16,7 @@ This is a simple URL shortening/unshortening solution built using AWS Services. 
 * Python >= 3.7
   * https://www.python.org/downloads/
 
-* Node.js >= 10.3.0
+* Node.js >= 10.3.0 (required for the AWS CDK Toolkit)
   * https://nodejs.org/en/download
 
 * AWS CLI with at least the "default" profile configured
@@ -27,57 +27,35 @@ This is a simple URL shortening/unshortening solution built using AWS Services. 
   * https://docs.aws.amazon.com/cdk/latest/guide/getting_started.html#getting_started_install
 
 
+#### Steps:
 
-The `cdk.json` file tells the CDK Toolkit how to execute your app.
-
-This project is set up like a standard Python project.  The initialization
-process also creates a virtualenv within this project, stored under the .env
-directory.  To create the virtualenv it assumes that there is a `python3`
-(or `python` for Windows) executable in your path with access to the `venv`
-package. If for any reason the automatic creation of the virtualenv fails,
-you can create the virtualenv manually.
-
-To manually create a virtualenv on MacOS and Linux:
+1. Clone the project
 
 ```
-$ python3 -m venv .env
+$ git clone https://github.com/aravraje/aws-url-shortener.git
 ```
 
-After the init process completes and the virtualenv is created, you can use the following
-step to activate your virtualenv.
+2. Navigate to the project folder and activate the Python virtualenv
 
 ```
 $ source .env/bin/activate
 ```
 
-If you are a Windows platform, you would activate the virtualenv like this:
+If you are on a Windows platform, you can activate the virtualenv like this:
 
 ```
 % .env\Scripts\activate.bat
 ```
 
-Once the virtualenv is activated, you can install the required dependencies.
+3. Once the virtualenv is activated, install the required dependencies
 
 ```
 $ pip install -r requirements.txt
 ```
 
-At this point you can now synthesize the CloudFormation template for this code.
+4. At this point, you can deploy the solution using the below CDK CLI command
 
 ```
-$ cdk synth
+$ cdk deploy [--profile aws_cli_profile]
 ```
-
-To add additional dependencies, for example other CDK libraries, just add
-them to your `setup.py` file and rerun the `pip install -r requirements.txt`
-command.
-
-## Useful commands
-
- * `cdk ls`          list all stacks in the app
- * `cdk synth`       emits the synthesized CloudFormation template
- * `cdk deploy`      deploy this stack to your default AWS account/region
- * `cdk diff`        compare deployed stack with current state
- * `cdk docs`        open CDK documentation
-
-Enjoy!
+> NOTE: This is an environment-agnostic stack and when using cdk deploy to deploy environment-agnostic stacks, the AWS CDK CLI uses the specified AWS CLI profile (or the default profile, if none is specified) to determine the AWS Account and Region for deploying the stack.
