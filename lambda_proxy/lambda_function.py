@@ -18,7 +18,7 @@ def lambda_handler(event, context):
     
     long_url = body['url_long']
     cdn_prefix = body['cdn_prefix']
-    client_ip = multiValueHeaders['X-Forwarded-For'][-1]  #CloudFront appends Client IP to the end of 'X-Forwarded-For' header
+    client_ip = multiValueHeaders['X-Forwarded-For'][0].split(",")[0]  #CloudFront appends Client IP to the 'X-Forwarded-For' header
     
     # Shorten the long URL
     return shorten(long_url, cdn_prefix, client_ip)

@@ -90,36 +90,51 @@ class AwsUrlShortenerStack(core.Stack):
         # Attaching DDB Policy statement with the Lambda IAM Role
         url_lambda.add_to_role_policy(ddb_policy_statement)
 
+        # Including X-Requested-With to the default CORS headers list
+        headers = apigw.Cors.DEFAULT_HEADERS
+        headers.append('X-Requested-With')
+
         # API Gateway endpoint to serve Shorten/Unshorten APIs
         url_rest_api = apigw.RestApi(
             self,
             "url_shortener_API",
-            cloud_watch_role=False,
+            default_cors_preflight_options=apigw.CorsOptions(
+                allow_origins=apigw.Cors.ALL_ORIGINS,
+                allow_headers=headers,
+                allow_methods=["POST", "GET", "OPTIONS"],
+                status_code=200,
+            ),
         )
 
         # Shorten API using POST and Lambda proxy
         url_rest_api.root.add_resource(
-            path_part="shorten"
+            path_part="shorten",
         ).add_method(
             http_method="POST",
+            request_models={
+                "application/json": apigw.Model.EMPTY_MODEL,
+            },
             integration=apigw.LambdaIntegration(
                 handler=url_lambda,
                 proxy=True,
-                allow_test_invoke=False,
+                allow_test_invoke=True,
             ),
         )
 
         # Unshorten API using GET and Lambda proxy
         url_rest_api.root.add_resource(
-            path_part="unshorten"
+            path_part="unshorten",
         ).add_resource(
             path_part="{shorturl}"
         ).add_method(
             http_method="GET",
+            request_models={
+                "application/json": apigw.Model.EMPTY_MODEL,
+            },
             integration=apigw.LambdaIntegration(
                 handler=url_lambda,
                 proxy=True,
-                allow_test_invoke=False,
+                allow_test_invoke=True,
             ),
         )
 
@@ -204,6 +219,7 @@ class AwsUrlShortenerStack(core.Stack):
                     behaviors=[
                         cf.Behavior(
                             is_default_behavior=True,
+                            allowed_methods=cf.CloudFrontAllowedMethods.GET_HEAD_OPTIONS,
                         )
                     ]
                 )

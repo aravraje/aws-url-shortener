@@ -8,10 +8,11 @@ s3 = boto3.client("s3")
 
 MAX_RETRIES, BACKOFF = 3, 100
 
+
 @helper.create
 @helper.update
 def update_html(event, context):
-    
+
     for num_retry in range(MAX_RETRIES):
         try:
             get_response = s3.get_object(
@@ -20,7 +21,7 @@ def update_html(event, context):
             )
 
             html = get_response["Body"].read()
-            
+
             soup = BeautifulSoup(html, "html.parser")
             post_url = soup.find("div", id="post_url")
             post_url.string = event["ResourceProperties"]["POST_URL"]
@@ -30,25 +31,34 @@ def update_html(event, context):
                 Key=event["ResourceProperties"]["S3_KEY"],
                 Body=soup.prettify(),
                 ContentType=get_response["ContentType"],
+                ACL="public-read",
             )
 
-            if put_response["ResponseMetadata"]["HTTPStatusCode"] == 200:
+            put_acl_response = s3.put_object_acl(
+                Bucket=event["ResourceProperties"]["S3_BUCKET"],
+                Key="favicon.ico",
+                ACL="public-read",
+            )
+
+            if put_response["ResponseMetadata"]["HTTPStatusCode"] == 200 and put_acl_response["ResponseMetadata"]["HTTPStatusCode"] == 200:
                 return
-        
+
         except Exception as e:
             print(f"Encountered the below exception while processing the request. Retrying..\n{e}")
-            
+
         finally:
             # Exponential Backoff before retrying
             sleep((num_retry * BACKOFF) / 1000)
-            
+
     print(f"Couldn't complete the request after {MAX_RETRIES} retries. Returning an error back to CloudFormation.")
 
     raise Exception("There was an error in updating the HTML file in S3 with API GW endpoint. See the Lambda Custom Resource CW Logs for more details.")
 
+
 @helper.delete
 def no_op(event, context):
     pass
+
 
 def lambda_handler(event, context):
     print(f"CloudFormation Event: {event}")
