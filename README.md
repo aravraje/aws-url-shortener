@@ -53,7 +53,7 @@ $ source .env/bin/activate
 $ pip install -r requirements.txt
 ```
 
-4. At this point, you can deploy the solution using the below CDK CLI command
+4. At this point, you can deploy the solution using the "cdk deploy" CDK CLI command
 
 > IMPORTANT: Please turn off the below options in the account-level S3 Block Public Access settings before executing the CLI command:
 > - Block public access to buckets and objects granted through new access control lists (ACLs)
