@@ -3,11 +3,16 @@
 
 This is a simple URL shortening/unshortening solution built using AWS Services. The UI for the solution is hosted on S3 and served via CloudFront. The shortening/unshortening is done via API Gateway backed by a custom Lambda function. DynamoDB is used for storing the URLs as well as to keep track of an atomic counter used for generating the short URLs.
 
+
 ## Architecture
 
 <image src="images/architecture.jpeg">
 
+
 ## Steps to deploy the solution in your AWS account
+
+#### Prerequisites:
+
 
 The `cdk.json` file tells the CDK Toolkit how to execute your app.
 
