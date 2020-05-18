@@ -9,9 +9,23 @@ This is a simple URL shortening/unshortening solution built using AWS Services. 
 <image src="images/architecture.jpeg">
 
 
-## Steps to deploy the solution in your AWS account
+## How to deploy?
 
 #### Prerequisites:
+
+* Python >= 3.7
+  * https://www.python.org/downloads/
+
+* Node.js >= 10.3.0
+  * https://nodejs.org/en/download
+
+* AWS CLI with at least the "default" profile configured
+  * https://docs.aws.amazon.com/cli/latest/userguide/install-cliv1.html
+  * https://docs.aws.amazon.com/cli/latest/userguide/cli-chap-configure.html#cli-quick-configuration
+
+* AWS CDK
+  * https://docs.aws.amazon.com/cdk/latest/guide/getting_started.html#getting_started_install
+
 
 
 The `cdk.json` file tells the CDK Toolkit how to execute your app.
