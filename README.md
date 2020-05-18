@@ -62,6 +62,6 @@ $ pip install -r requirements.txt
 ```
 $ cdk deploy [--profile aws_cli_profile]
 ```
-  - This is an environment-agnostic stack and when using cdk deploy to deploy environment-agnostic stacks, the AWS CDK CLI uses the specified AWS CLI profile (or the default profile, if none is specified) to determine the AWS Account and Region for deploying the stack.
+  - This is an environment-agnostic stack and when using "cdk deploy" to deploy environment-agnostic stacks, the AWS CDK CLI uses the specified AWS CLI profile (or the default profile, if none is specified) to determine the AWS Account and Region for deploying the stack.
 
 5. Once the solution gets successfully deployed, you can access the URL Shortener website using the CloudFront endpoint outputted under "URLShortenerWebsite" parameter.
