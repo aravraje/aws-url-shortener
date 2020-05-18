@@ -41,7 +41,7 @@ $ git clone https://github.com/aravraje/aws-url-shortener.git
 $ source .env/bin/activate
 ```
 
-If you are on a Windows platform, you can activate the virtualenv like this:
+  - If you are on a Windows platform, you can activate the virtualenv like this:
 
 ```
 % .env\Scripts\activate.bat
