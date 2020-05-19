@@ -9,7 +9,6 @@ from aws_cdk import (
     aws_s3_deployment as s3deploy,
     aws_cloudfront as cf,
 )
-from bs4 import BeautifulSoup
 
 class AwsUrlShortenerStack(core.Stack):
 
