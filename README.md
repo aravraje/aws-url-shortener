@@ -35,7 +35,13 @@ This is a simple URL shortening/unshortening solution built using AWS Services. 
 $ git clone https://github.com/aravraje/aws-url-shortener.git
 ```
 
-2. Navigate to the project folder and activate the Python virtualenv
+2. Navigate to the project folder and create a Python virtualenv (assuming that there is a python3 (or python for Windows) executable in your path with access to the venv package)
+
+```
+$ python3 -m venv .env
+```
+
+3. Activate the Python virtualenv
 
 ```
 $ source .env/bin/activate
@@ -47,13 +53,13 @@ $ source .env/bin/activate
 % .env\Scripts\activate.bat
 ```
 
-3. Once the virtualenv is activated, install the required dependencies
+4. Once the virtualenv is activated, install the required dependencies
 
 ```
 $ pip install -r requirements.txt
 ```
 
-4. At this point, you can deploy the solution using the "cdk deploy" CDK CLI command
+5. At this point, you can deploy the solution using the "cdk deploy" CDK CLI command
 
 > IMPORTANT: Please turn off the below options in the account-level S3 Block Public Access settings before executing the CLI command:
 > - Block public access to buckets and objects granted through new access control lists (ACLs)
@@ -64,7 +70,7 @@ $ cdk deploy [--profile aws_cli_profile]
 ```
   - This is an environment-agnostic stack and when using "cdk deploy" to deploy environment-agnostic stacks, the AWS CDK CLI uses the specified AWS CLI profile (or the default profile, if none is specified) to determine the AWS Account and Region for deploying the stack.
 
-5. Once the solution gets successfully deployed, you can access the URL Shortener website using the CloudFront endpoint outputted under the "URLShortenerWebsite" parameter.
+6. Once the solution gets successfully deployed, you can access the URL Shortener website using the CloudFront endpoint outputted under the "URLShortenerWebsite" parameter.
 
 
 ## Future Enhancements
