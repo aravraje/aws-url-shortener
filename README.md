@@ -11,7 +11,7 @@ This is a simple URL shortening/unshortening solution built using AWS Services. 
 
 ## How to deploy?
 
-#### Prerequisites:
+#### Prerequisites
 
 * Python >= 3.7
   * https://www.python.org/downloads/
@@ -27,7 +27,7 @@ This is a simple URL shortening/unshortening solution built using AWS Services. 
   * https://docs.aws.amazon.com/cdk/latest/guide/getting_started.html#getting_started_install
 
 
-#### Steps:
+#### Steps
 
 1. Clone the project
 
@@ -65,3 +65,9 @@ $ cdk deploy [--profile aws_cli_profile]
   - This is an environment-agnostic stack and when using "cdk deploy" to deploy environment-agnostic stacks, the AWS CDK CLI uses the specified AWS CLI profile (or the default profile, if none is specified) to determine the AWS Account and Region for deploying the stack.
 
 5. Once the solution gets successfully deployed, you can access the URL Shortener website using the CloudFront endpoint outputted under the "URLShortenerWebsite" parameter.
+
+
+#### Future Enhancements
+
+- Support for user-friendly Custom alias (ex: https://xxxx.cloudfront.net/my-url).
+- Dashboard to track the API usage.
