@@ -67,7 +67,7 @@ $ cdk deploy [--profile aws_cli_profile]
 5. Once the solution gets successfully deployed, you can access the URL Shortener website using the CloudFront endpoint outputted under the "URLShortenerWebsite" parameter.
 
 
-#### Future Enhancements
+## Future Enhancements
 
-- Support for user-friendly Custom alias (ex: https://xxxx.cloudfront.net/my-url).
+- Support for user-friendly Custom alias (ex: https://xxxx.cloudfront.net/cpu-utilization).
 - Dashboard to track the API usage.
