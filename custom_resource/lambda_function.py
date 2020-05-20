@@ -31,16 +31,9 @@ def update_html(event, context):
                 Key=event["ResourceProperties"]["S3_KEY"],
                 Body=soup.prettify(),
                 ContentType=get_response["ContentType"],
-                ACL="public-read",
             )
 
-            put_acl_response = s3.put_object_acl(
-                Bucket=event["ResourceProperties"]["S3_BUCKET"],
-                Key="favicon.ico",
-                ACL="public-read",
-            )
-
-            if put_response["ResponseMetadata"]["HTTPStatusCode"] == 200 and put_acl_response["ResponseMetadata"]["HTTPStatusCode"] == 200:
+            if put_response["ResponseMetadata"]["HTTPStatusCode"] == 200:
                 return
 
         except Exception as e:

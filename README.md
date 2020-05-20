@@ -59,18 +59,14 @@ $ source .env/bin/activate
 $ pip install -r requirements.txt
 ```
 
-5. At this point, you can deploy the solution using the "cdk deploy" CDK CLI command
-
-> IMPORTANT: Please turn off the below options in the account-level S3 Block Public Access settings before executing the CLI command:
-> - Block public access to buckets and objects granted through new access control lists (ACLs)
-> - Block public access to buckets and objects granted through any access control lists (ACLs)
+5. At this point, you can deploy the solution using the below CDK CLI command
 
 ```
 $ cdk deploy [--profile aws_cli_profile]
 ```
-  - This is an environment-agnostic stack and when using "cdk deploy" to deploy environment-agnostic stacks, the AWS CDK CLI uses the specified AWS CLI profile (or the default profile, if none is specified) to determine the AWS Account and Region for deploying the stack.
+> This is an environment-agnostic stack and when using "cdk deploy" to deploy environment-agnostic stacks, the AWS CDK CLI uses the specified AWS CLI profile (or the default profile, if none is specified) to determine the AWS Account and Region for deploying the stack.
 
-6. Once the solution gets successfully deployed, you can access the URL Shortener website using the CloudFront endpoint outputted under the "URLShortenerWebsite" parameter.
+6. Once the solution gets successfully deployed, you can access the URL Shortener website using the CloudFront endpoint present under "URLShortenerWebsite" parameter in the CFN Outputs.
 
 
 ## Future Enhancements

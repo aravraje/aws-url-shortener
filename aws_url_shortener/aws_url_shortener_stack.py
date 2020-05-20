@@ -195,14 +195,18 @@ class AwsUrlShortenerStack(core.Stack):
             "url_shortener_distribution",
             origin_configs=[
                 cf.SourceConfiguration(
-                    custom_origin_source=cf.CustomOriginConfig(
-                        domain_name=s3_web_hosting.bucket_website_domain_name,
-                        origin_protocol_policy=cf.OriginProtocolPolicy.HTTP_ONLY,
+                    s3_origin_source=cf.S3OriginConfig(
+                        s3_bucket_source=s3_web_hosting,
+                        origin_access_identity=cf.OriginAccessIdentity(
+                            self,
+                            id="OAI",
+                            comment="OAI that allows CloudFront to access the S3 bucket"
+                        ),
                     ),
                     behaviors=[
                         cf.Behavior(
                             is_default_behavior=False,
-                            path_pattern="/",
+                            path_pattern="/index.html",
                         ),
                         cf.Behavior(
                             is_default_behavior=False,
@@ -224,7 +228,7 @@ class AwsUrlShortenerStack(core.Stack):
                 )
             ],
             price_class=cf.PriceClass.PRICE_CLASS_ALL,
-            default_root_object="",
+            default_root_object="index.html",
         )
 
         # Adding the CloudFront Distribution endpoint to CFN Output
