@@ -1,7 +1,7 @@
 
 # AWS URL Shortener
 
-This is a simple URL shortening/unshortening solution built using AWS Services. The UI for the solution is hosted on S3 and served via CloudFront. The shortening/unshortening is done via API Gateway backed by a custom Lambda function. DynamoDB is used for storing the URLs as well as to keep track of an atomic counter used for generating the short URLs.
+This is a simple, serverless URL shortening/unshortening solution built using AWS Services. The UI for the solution is hosted on S3 and served via CloudFront. The shortening/unshortening is done via API Gateway backed by a custom Lambda function. DynamoDB is used for storing the URLs as well as to keep track of an atomic counter used for generating the short URLs.
 
 
 ## Architecture
@@ -15,9 +15,11 @@ This is a simple URL shortening/unshortening solution built using AWS Services. 
 
 * Python >= 3.7
   * https://www.python.org/downloads/
+  * Installing on EC2 Linux - https://docs.aws.amazon.com/cli/latest/userguide/install-linux-python.html
 
 * Node.js >= 10.3.0 (required for the AWS CDK Toolkit)
   * https://nodejs.org/en/download
+  * Installing on EC2 Linux - https://docs.aws.amazon.com/sdk-for-javascript/v2/developer-guide/setting-up-node-on-ec2-instance.html#setting-up-node-on-ec2-instance-procedure
 
 * AWS CLI with at least the "default" profile configured
   * https://docs.aws.amazon.com/cli/latest/userguide/install-cliv1.html
@@ -26,6 +28,8 @@ This is a simple URL shortening/unshortening solution built using AWS Services. 
 * AWS CDK
   * https://docs.aws.amazon.com/cdk/latest/guide/getting_started.html#getting_started_install
 
+* Git CLI
+  * https://git-scm.com/downloads
 
 #### Steps
 
@@ -59,12 +63,14 @@ $ source .env/bin/activate
 $ pip install -r requirements.txt
 ```
 
-5. At this point, you can deploy the solution using the below CDK CLI command
+5. At this point, you can deploy the solution using "cdk deploy" CDK CLI command
+
+> NOTE: If this is your first time deploying a CDK app in the given AWS Account and Region, you must bootstrap your AWS environment for CDK by invoking "cdk bootstrap" CDK CLI command before running the "cdk deploy" command.
 
 ```
 $ cdk deploy [--profile aws_cli_profile]
 ```
-> This is an environment-agnostic stack and when using "cdk deploy" to deploy environment-agnostic stacks, the AWS CDK CLI uses the specified AWS CLI profile (or the default profile, if none is specified) to determine the AWS Account and Region for deploying the stack.
+  - This is an environment-agnostic solution and when using "cdk deploy" to deploy environment-agnostic solutions, the AWS CDK CLI uses the specified AWS CLI profile (or the "default" profile, if none is specified) to determine the AWS Account and Region for deploying the solution.
 
 6. Once the solution gets successfully deployed, you can access the URL Shortener website using the CloudFront endpoint present under "URLShortenerWebsite" parameter in the CFN Outputs.
 
