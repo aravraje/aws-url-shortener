@@ -15,6 +15,7 @@ def update_html(event, context):
 
     for num_retry in range(MAX_RETRIES):
         try:
+            # Read the HTML file from S3
             get_response = s3.get_object(
                 Bucket=event["ResourceProperties"]["S3_BUCKET"],
                 Key=event["ResourceProperties"]["S3_KEY"],
@@ -22,10 +23,12 @@ def update_html(event, context):
 
             html = get_response["Body"].read()
 
+            # Update the AJAX POST URL in the HTML file with the APIGW Shorten endpoint
             soup = BeautifulSoup(html, "html.parser")
             post_url = soup.find("div", id="post_url")
             post_url.string = event["ResourceProperties"]["POST_URL"]
 
+            # Upload the HTML file back to the S3 bucket
             put_response = s3.put_object(
                 Bucket=event["ResourceProperties"]["S3_BUCKET"],
                 Key=event["ResourceProperties"]["S3_KEY"],
